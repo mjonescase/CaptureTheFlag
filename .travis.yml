@@ -4,4 +4,7 @@ android:
     - build-tools-25.0.2 # build tools version
     - android-25         # sdk version
 
+before_install:
+ - openssl aes-256-cbc -K $encrypted_89c1b9e4dd7a_key -iv $encrypted_89c1b9e4dd7a_iv -in mwjones.jks.enc -out mwjones.jks -d
+ 
 script: ./gradlew assembleRelease
