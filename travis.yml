@@ -1,0 +1,7 @@
+language: android
+android:
+  components:
+    - build-tools-25.0.2 # build tools version
+    - android-25         # sdk version
+
+script: ./gradlew assembleRelease
