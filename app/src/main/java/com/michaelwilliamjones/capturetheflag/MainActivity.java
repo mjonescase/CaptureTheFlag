@@ -6,24 +6,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
+
+
 
 public class MainActivity extends AppCompatActivity {
-    CognitoUserPool userPool;
     Button registerButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // cognito setup
-        String userPoolId = "us-east-1_0XIfrCyzH";
-        String clientId = "5vecsro21lfr9qdrs772vekkn8";
-        String clientSecret = ""; // no secret
-        Context context = getApplicationContext();
-        userPool = new CognitoUserPool(context, userPoolId, clientId, clientSecret);
+        callbackManager = CallbackManager.Factory.create();
 
         //register button click handler
         registerButton = (Button) findViewById(R.id.registerButton);
