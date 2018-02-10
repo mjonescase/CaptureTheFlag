@@ -91,4 +91,6 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="action_settings">Settings</string>
+    <string name="facebook_app_id">327706707741451</string>
+    <string name="fb_login_protocol_scheme">fb327706707741451</string>
 </resources>
