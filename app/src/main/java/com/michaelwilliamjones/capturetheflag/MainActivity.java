@@ -11,8 +11,13 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.michaelwilliamjones.capturetheflag.dataAccessObjects.FacebookProfileDAO;
+
+import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -58,6 +63,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if ( accessToken != null ) {
+            GraphRequest myProfileRequest = new FacebookProfileDAO(accessToken).fetchMyProfile();
+            setContentView(R.layout.activity_find_friends);
+        } else {
+            // TODO handle failed fb login
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 }
