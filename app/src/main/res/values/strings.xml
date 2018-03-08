@@ -94,4 +94,19 @@
     <string name="facebook_app_id">327706707741451</string>
     <string name="fb_login_protocol_scheme">fb327706707741451</string>
     <string name="title_activity_find_friends">FindFriendsActivity</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="map_not_ready">Waiting for map...</string>
+    <string name="go_to_sydney">Go to Sydney</string>
+    <string name="go_to_bondi">Go to Bondi</string>
+    <string name="stop_animation">Stop</string>
+    <string name="animate">Animate</string>
+    <string name="up_arrow">Up</string>
+    <string name="down_arrow">Down</string>
+    <string name="right_arrow">Right</string>
+    <string name="left_arrow">Left</string>
+    <string name="zoom_in">Zoom In</string>
+    <string name="zoom_out">Zoom Out</string>
+    <string name="tilt_more">Tilt More</string>
+    <string name="tilt_less">Tilt Less</string>
+    <string name="duration">Duration</string>
 </resources>

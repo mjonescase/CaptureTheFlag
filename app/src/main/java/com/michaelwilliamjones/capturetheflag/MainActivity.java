@@ -2,7 +2,6 @@ package com.michaelwilliamjones.capturetheflag;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,13 +10,10 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.michaelwilliamjones.capturetheflag.dataAccessObjects.FacebookProfileDAO;
-
-import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -66,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         if ( accessToken != null ) {
             GraphRequest myProfileRequest = new FacebookProfileDAO(accessToken).fetchMyProfile();
-            setContentView(R.layout.activity_find_friends);
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
         } else {
             // TODO handle failed fb login
         }

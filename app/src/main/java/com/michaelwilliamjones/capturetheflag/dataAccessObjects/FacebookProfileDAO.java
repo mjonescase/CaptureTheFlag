@@ -6,7 +6,9 @@ import android.util.Log;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.michaelwilliamjones.capturetheflag.beans.FacebookProfileBean;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -15,6 +17,7 @@ import org.json.JSONObject;
 
 public class FacebookProfileDAO {
     private AccessToken accessToken;
+    private FacebookProfileBean myProfile;
 
     public FacebookProfileDAO(AccessToken accessToken) {
         this.accessToken = accessToken;
@@ -37,7 +40,11 @@ public class FacebookProfileDAO {
                     public void onCompleted(
                             JSONObject object,
                             GraphResponse response) {
-                        Log.i("JSON Response", object.toString());
+                        try {
+                            myProfile = FacebookProfileBean.fromJSON(object);
+                        } catch(JSONException jsonException) {
+                            // TODO handle this somehow
+                        }
                     }
                 });
         Bundle parameters = new Bundle();
