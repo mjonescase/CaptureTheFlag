@@ -26,7 +26,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         callbackManager = CallbackManager.Factory.create();
-        boolean loggedIn = AccessToken.getCurrentAccessToken() == null;
+        if (AccessToken.getCurrentAccessToken() != null) {
+            Intent intent = new Intent(this, MapsActivity.class);
+            startActivity(intent);
+        }
 
         LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
