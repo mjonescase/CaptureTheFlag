@@ -17,7 +17,11 @@ package com.michaelwilliamjones.capturetheflag;
  */
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -53,6 +57,7 @@ public class MapsActivity extends AppCompatActivity implements
         OnCameraMoveListener,
         OnCameraMoveCanceledListener,
         OnCameraIdleListener,
+        LocationListener,
         OnMapReadyCallback {
 
     private static final String TAG = MapsActivity.class.getName();
@@ -79,12 +84,15 @@ public class MapsActivity extends AppCompatActivity implements
                     .build();
 
     private GoogleMap mMap;
+    private LocationManager locationManager;
 
     private CompoundButton mAnimateToggle;
     private CompoundButton mCustomDurationToggle;
     private SeekBar mCustomDurationBar;
     private PolylineOptions currPolylineOptions;
     private boolean isCanceled = false;
+    private int MIN_TIME = 500;
+    private int MIN_DISTANCE = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +107,7 @@ public class MapsActivity extends AppCompatActivity implements
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mapFragment.getMapAsync(this);
     }
 
@@ -106,6 +115,23 @@ public class MapsActivity extends AppCompatActivity implements
     protected void onResume() {
         super.onResume();
         updateEnabledState();
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) { }
+
+    @Override
+    public void onProviderEnabled(String provider) { }
+
+    @Override
+    public void onProviderDisabled(String provider) { }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
+        mMap.animateCamera(cameraUpdate);
+        locationManager.removeUpdates(this);
     }
 
     @Override
@@ -124,19 +150,15 @@ public class MapsActivity extends AppCompatActivity implements
         // Try to get the user's location
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
             mMap.setMyLocationEnabled(true);
             //TODO: get my location and show it
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-33.87365, 151.20689), 10));
         } else {
             // Show rationale and request permission.
             // No explanation needed; request the permission
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST_VIEW_LOCATION);
-
-            // Show Sydney
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-33.87365, 151.20689), 10));
-
         }
     }
 
@@ -147,12 +169,14 @@ public class MapsActivity extends AppCompatActivity implements
             case MY_PERMISSIONS_REQUEST_VIEW_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                     //TODO: get my location and show it.
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(-33.87365, 151.20689), 10));
+                    mMap.setMyLocationEnabled(true);
 
                 } else {
 
