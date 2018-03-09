@@ -26,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         callbackManager = CallbackManager.Factory.create();
-        if (AccessToken.getCurrentAccessToken() != null) {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        if (accessToken != null) {
             Intent intent = new Intent(this, MapsActivity.class);
             startActivity(intent);
         }
