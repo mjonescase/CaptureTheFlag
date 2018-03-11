@@ -40,6 +40,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.michaelwilliamjones.capturetheflag.websockets.EchoWebSocketListener;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -48,6 +49,10 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Toast;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
 
 /**
  * This shows how to change the camera position for the map.
@@ -62,6 +67,8 @@ public class MapsActivity extends AppCompatActivity implements
 
     private static final String TAG = MapsActivity.class.getName();
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
+    private static final String WEB_SOCKET_URL = "ws://192.168.1.73:5000/ws";
+    private OkHttpClient webSocketClient;
 
     /**
      * The amount by which to scroll the camera. Note that this amount is in raw pixels, not dp
@@ -109,6 +116,12 @@ public class MapsActivity extends AppCompatActivity implements
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mapFragment.getMapAsync(this);
+        //initialize web socket connection
+        this.webSocketClient = new OkHttpClient();
+        Request request = new Request.Builder().url(this.WEB_SOCKET_URL).build();
+        EchoWebSocketListener listener = new EchoWebSocketListener();
+        WebSocket ws = webSocketClient.newWebSocket(request, listener);
+        this.webSocketClient.dispatcher().executorService().shutdown();
     }
 
     @Override
