@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.michaelwilliamjones.capturetheflag.websockets.EchoWebSocketListener;
+import com.michaelwilliamjones.capturetheflag.websockets.MessageListener;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -63,11 +64,12 @@ public class MapsActivity extends AppCompatActivity implements
         OnCameraMoveCanceledListener,
         OnCameraIdleListener,
         LocationListener,
-        OnMapReadyCallback {
+        OnMapReadyCallback,
+        MessageListener {
 
     private static final String TAG = MapsActivity.class.getName();
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
-    private static final String WEB_SOCKET_URL = "ws://192.168.1.73:5000/ws";
+    private static final String WEB_SOCKET_URL = "ws://10.13.8.131:5000/ws";
     private OkHttpClient webSocketClient;
 
     /**
@@ -120,8 +122,15 @@ public class MapsActivity extends AppCompatActivity implements
         this.webSocketClient = new OkHttpClient();
         Request request = new Request.Builder().url(this.WEB_SOCKET_URL).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
+        listener.addListener(this);
         WebSocket ws = webSocketClient.newWebSocket(request, listener);
         this.webSocketClient.dispatcher().executorService().shutdown();
+    }
+
+    @Override
+    public void onMessageReceived(String text) {
+        // TODO IMPLEMENT
+        Log.i("WEBSOCKET", text);
     }
 
     @Override

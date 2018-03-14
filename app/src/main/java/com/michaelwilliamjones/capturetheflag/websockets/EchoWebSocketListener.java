@@ -2,6 +2,8 @@ package com.michaelwilliamjones.capturetheflag.websockets;
 
 import android.util.Log;
 
+import java.util.ArrayList;
+
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
@@ -12,26 +14,41 @@ import okio.ByteString;
  */
 
 public class EchoWebSocketListener extends WebSocketListener {
-        private static final int NORMAL_CLOSURE_STATUS = 1000;
-        @Override
-        public void onOpen(WebSocket webSocket, Response response) {
-            Log.i("WEBSOCKETS", response.toString());
+
+    private ArrayList<MessageListener> listeners;
+
+    public EchoWebSocketListener() {
+        super();
+        this.listeners = new ArrayList<MessageListener>();
+    }
+
+    public void addListener(MessageListener listener) {
+        this.listeners.add(listener);
+    }
+
+    private static final int NORMAL_CLOSURE_STATUS = 1000;
+    @Override
+    public void onOpen(WebSocket webSocket, Response response) {
+        Log.i("WEBSOCKETS", response.toString());
+    }
+    @Override
+    public void onMessage(WebSocket webSocket, String text) {
+        Log.i("WEBSOCKETS","Receiving : " + text);
+        for (MessageListener listener : this.listeners) {
+            listener.onMessageReceived(text);
         }
-        @Override
-        public void onMessage(WebSocket webSocket, String text) {
-            Log.i("WEBSOCKETS","Receiving : " + text);
-        }
-        @Override
-        public void onMessage(WebSocket webSocket, ByteString bytes) {
-            Log.i("WEBSOCKETS","Receiving bytes : " + bytes.hex());
-        }
-        @Override
-        public void onClosing(WebSocket webSocket, int code, String reason) {
-            webSocket.close(NORMAL_CLOSURE_STATUS, null);
-            Log.i("WEBSOCKETS", "Closing : " + code + " / " + reason);
-        }
-        @Override
-        public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-            Log.e("WEBSOCKETS", "Error : " + t.getMessage());
-        }
+    }
+    @Override
+    public void onMessage(WebSocket webSocket, ByteString bytes) {
+        Log.i("WEBSOCKETS","Receiving bytes : " + bytes.hex());
+    }
+    @Override
+    public void onClosing(WebSocket webSocket, int code, String reason) {
+        webSocket.close(NORMAL_CLOSURE_STATUS, null);
+        Log.i("WEBSOCKETS", "Closing : " + code + " / " + reason);
+    }
+    @Override
+    public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+        Log.e("WEBSOCKETS", "Error : " + t.getMessage());
+    }
 }
