@@ -51,6 +51,9 @@ import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
@@ -131,6 +134,17 @@ public class MapsActivity extends AppCompatActivity implements
     public void onMessageReceived(String text) {
         // TODO IMPLEMENT
         Log.i("WEBSOCKET", text);
+        // {"type":0,"contents":{"email":"dlhart@te.com","message":"salame","mobilenumber":"2222222222","username":"dlhart"}}
+        JSONObject messageJSON = null;
+        try {
+            messageJSON = new JSONObject(new JSONObject(text).getString("contents"));
+            if (messageJSON.getString("message").startsWith("LOCATION")) {
+                Log.i("WEBSOCKET", "made it to the location part");
+            }
+        } catch (JSONException jsonException) {
+            Log.w("WEBSOCKET", "bad message. Ignoring.");
+            return;
+        }
     }
 
     @Override
