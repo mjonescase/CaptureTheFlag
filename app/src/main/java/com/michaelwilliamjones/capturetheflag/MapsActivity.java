@@ -39,6 +39,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.michaelwilliamjones.capturetheflag.websockets.EchoWebSocketListener;
 import com.michaelwilliamjones.capturetheflag.websockets.MessageListener;
@@ -105,6 +106,7 @@ public class MapsActivity extends AppCompatActivity implements
     private boolean isCanceled = false;
     private int MIN_TIME = 500;
     private int MIN_DISTANCE = 5;
+    private Location lastKnownLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +142,18 @@ public class MapsActivity extends AppCompatActivity implements
             messageJSON = new JSONObject(new JSONObject(text).getString("contents"));
             if (messageJSON.getString("message").startsWith("LOCATION")) {
                 Log.i("WEBSOCKET", "made it to the location part");
+                // put a blip on the map, using the coordinates.
+                // EX: work, lat42, long-82 is pretty close.
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(42.0, -82.0))
+                                .title("david")
+                                .snippet("something")
+                                .draggable(true));
+                    }
+                });
             }
         } catch (JSONException jsonException) {
             Log.w("WEBSOCKET", "bad message. Ignoring.");
@@ -164,6 +178,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
+        this.lastKnownLocation = location;
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
         mMap.animateCamera(cameraUpdate);
@@ -188,7 +203,6 @@ public class MapsActivity extends AppCompatActivity implements
                 == PackageManager.PERMISSION_GRANTED) {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this); //You can also use LocationManager.GPS_PROVIDER and LocationManager.PASSIVE_PROVIDER
             mMap.setMyLocationEnabled(true);
-            //TODO: get my location and show it
         } else {
             // Show rationale and request permission.
             // No explanation needed; request the permission
