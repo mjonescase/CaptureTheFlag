@@ -34,7 +34,8 @@
             android:id="@+id/registrationSubmitButton"
             android:layout_width="134dp"
             android:layout_height="wrap_content"
-            android:text="Register">
+            android:text="Register"
+            android:onClick="onRegistrationClick">
         </Button>
     </LinearLayout>
-</ScrollView>o
+</ScrollView>
