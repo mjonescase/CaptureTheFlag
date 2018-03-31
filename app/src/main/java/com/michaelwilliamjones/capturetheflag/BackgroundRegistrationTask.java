@@ -4,14 +4,20 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.CookieHandler;
 import android.webkit.CookieManager;
+
+import org.json.JSONObject;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -28,15 +34,8 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
     }
 
     @Override
-    protected Integer doInBackground(String... accessTokens) {
-        String accessToken = accessTokens[0];
-
-        Integer success = 0;
-        if(accessToken != null && accessToken.length() > 0) {
-            success = submitRegistrationToServer(accessToken);
-        }
-
-        return success;
+    protected Integer doInBackground(String... userParams) {
+        return submitRegistrationToServer(userParams[0], userParams[1], userParams[2]);
     }
 
     @Override
@@ -54,13 +53,20 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
         try {
             CookieHandler.setDefault(new java.net.CookieManager());
 
-            URL registrationUrl = new URL("http://192.168.1.73:5000/register");
+            URL registrationUrl = new URL(Constants.SKELETOR_URI + "/" + Constants.REGISTRATION_ENDPOINT);
             HttpURLConnection conn = (HttpURLConnection) registrationUrl.openConnection();
-            conn.setRequestProperty();
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setInstanceFollowRedirects(false);
+
+            OutputStream outputStream = new BufferedOutputStream(conn.getOutputStream());
+            // send some data over the wire.
+            JSONObject profileData = new JSONObject();
+            profileData.put("username", username);
+            profileData.put("password", password);
+            profileData.put("email", email);
+            outputStream.write(profileData.toString().getBytes());
 
             Log.d(TAG, "POST /register");
 
@@ -77,7 +83,7 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
 
                 for(String cookie : cookiesHeader) {
                     Log.d(TAG, "cookies from header: " + cookie);
-                    cookieManager.setCookie("192.168.1.73", cookie);
+                    cookieManager.setCookie(Constants.SKELETOR_HOST, cookie);
                 }
 
             } else {

@@ -71,7 +71,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     private static final String TAG = MapsActivity.class.getName();
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
-    private static final String WEB_SOCKET_URL = "ws://192.168.1.73:5000/ws";
+    private static final String WEB_SOCKET_URL = Constants.SKELETOR_URI + Constants.WEBSOCKET_ENDPOINT;
     private OkHttpClient webSocketClient;
 
     /**
