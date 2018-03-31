@@ -42,7 +42,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.michaelwilliamjones.capturetheflag.websockets.EchoWebSocketListener;
-import com.michaelwilliamjones.capturetheflag.websockets.MessageListener;
+import com.michaelwilliamjones.capturetheflag.websockets.LocationDetails;
+import com.michaelwilliamjones.capturetheflag.websockets.LocationUpdateListener;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -51,9 +52,6 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -69,11 +67,11 @@ public class MapsActivity extends AppCompatActivity implements
         OnCameraIdleListener,
         LocationListener,
         OnMapReadyCallback,
-        MessageListener {
+        LocationUpdateListener {
 
     private static final String TAG = MapsActivity.class.getName();
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
-    private static final String WEB_SOCKET_URL = "ws://10.13.8.131:5000/ws";
+    private static final String WEB_SOCKET_URL = "ws://192.168.1.73:5000/ws";
     private OkHttpClient webSocketClient;
 
     /**
@@ -127,38 +125,23 @@ public class MapsActivity extends AppCompatActivity implements
         this.webSocketClient = new OkHttpClient();
         Request request = new Request.Builder().url(this.WEB_SOCKET_URL).build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
-        listener.addListener(this);
+        listener.addLocationListener(this);
         WebSocket ws = webSocketClient.newWebSocket(request, listener);
         this.webSocketClient.dispatcher().executorService().shutdown();
     }
 
     @Override
-    public void onMessageReceived(String text) {
-        // TODO IMPLEMENT
-        Log.i("WEBSOCKET", text);
-        // {"type":0,"contents":{"email":"dlhart@te.com","message":"salame","mobilenumber":"2222222222","username":"dlhart"}}
-        JSONObject messageJSON = null;
-        try {
-            messageJSON = new JSONObject(new JSONObject(text).getString("contents"));
-            if (messageJSON.getString("message").startsWith("LOCATION")) {
-                Log.i("WEBSOCKET", "made it to the location part");
-                // put a blip on the map, using the coordinates.
-                // EX: work, lat42, long-82 is pretty close.
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(42.0, -82.0))
-                                .title("david")
-                                .snippet("something")
-                                .draggable(true));
-                    }
-                });
+    public void onLocationReceived(final LocationDetails locationDetails) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMap.addMarker(new MarkerOptions()
+                        .position(locationDetails.getLatLng())
+                        .title(locationDetails.getUserDisplayInfo())
+                        .snippet("something")
+                        .draggable(false));
             }
-        } catch (JSONException jsonException) {
-            Log.w("WEBSOCKET", "bad message. Ignoring.");
-            return;
-        }
+        });
     }
 
     @Override
