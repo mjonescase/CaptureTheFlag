@@ -36,32 +36,10 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void onRegistrationClick(View view) {
-        // gather the values from the fields on the page.
-        try {
-            //Allow network on main thread
-            StrictMode.ThreadPolicy defaultPolicy = StrictMode.getThreadPolicy();
-            StrictMode.ThreadPolicy permitNetworkPolicy =
-                    new StrictMode.ThreadPolicy.Builder(defaultPolicy).permitNetwork().build();
-            StrictMode.setThreadPolicy(permitNetworkPolicy);
-
-            //Block until background thread completes
-            new BackgroundRegistrationTask(getBaseContext()).execute(
-                    // add registration fields here.
-                    getTextFieldContents(R.id.registrationUsername),
-                    getTextFieldContents(R.id.registrationPassword),
-                    getTextFieldContents(R.id.registrationEmail)
-            ).get();
-
-            //Restore default policy
-            StrictMode.setThreadPolicy(defaultPolicy);
-
-            //Launch the MapsActivity.
-            Intent intent = new Intent(this, MapsActivity.class);
-            startActivity(intent);
-        } catch (InterruptedException | ExecutionException e) {
-            Log.d(TAG, "Exception with BackgroundLoginTask - " + e.getMessage());
-        }
-        Intent intent = new Intent(this, MapsActivity.class);
-        startActivity(intent);
+        new BackgroundRegistrationTask(getBaseContext(), this).execute(
+                // add registration fields here.
+                getTextFieldContents(R.id.registrationUsername),
+                getTextFieldContents(R.id.registrationPassword),
+                getTextFieldContents(R.id.registrationEmail));
     }
 }

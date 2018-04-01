@@ -1,6 +1,7 @@
 package com.michaelwilliamjones.capturetheflag;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -28,13 +29,22 @@ import java.util.Map;
 class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
     private static final String TAG = "BackgroundRegTask";
     private Context context;
+    private RegistrationActivity activity;
 
-    public BackgroundRegistrationTask (Context context) {
+    public BackgroundRegistrationTask (Context context, RegistrationActivity activity) {
         this.context = context;
+        this.activity = activity;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
     }
 
     @Override
     protected Integer doInBackground(String... userParams) {
+        if(android.os.Debug.isDebuggerConnected())
+            android.os.Debug.waitForDebugger();
         return submitRegistrationToServer(userParams[0], userParams[1], userParams[2]);
     }
 
@@ -43,22 +53,27 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
         super.onPostExecute(success);
         if(success == 1) {
             // do whatever you're supposed to do on success.
+            //Launch the MapsActivity.
+            Intent intent = new Intent(activity, MapsActivity.class);
+            activity.startActivity(intent);
+            activity.finish();
         }
-
     }
 
     private Integer submitRegistrationToServer(String username, String password, String email) {
         Integer responseCode = 0;
+        HttpURLConnection conn = null;
 
         try {
             CookieHandler.setDefault(new java.net.CookieManager());
 
             URL registrationUrl = new URL(Constants.SKELETOR_URI + "/" + Constants.REGISTRATION_ENDPOINT);
-            HttpURLConnection conn = (HttpURLConnection) registrationUrl.openConnection();
+            conn = (HttpURLConnection) registrationUrl.openConnection();
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setInstanceFollowRedirects(false);
+            conn.setConnectTimeout(5000); // 5 seconds
 
             OutputStream outputStream = new BufferedOutputStream(conn.getOutputStream());
             // send some data over the wire.
@@ -94,6 +109,15 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
         } catch (Exception e) {
             Log.d(TAG, "Exception happened");
             Log.d(TAG, e.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.getInputStream().close();
+                } catch (IOException ioexception) {
+
+                }
+                conn.disconnect();
+            }
         }
 
         if(responseCode == 200) {
