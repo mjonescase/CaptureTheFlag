@@ -50,6 +50,9 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
 
     @Override
     protected void onPostExecute(Integer success) {
+
+
+
         super.onPostExecute(success);
         if(success == 1) {
             // do whatever you're supposed to do on success.
@@ -81,7 +84,8 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
             profileData.put("username", username);
             profileData.put("password", password);
             profileData.put("email", email);
-            outputStream.write(profileData.toString().getBytes());
+            outputStream.write(profileData.toString().getBytes("UTF-8"));
+            outputStream.close();
 
             Log.d(TAG, "POST /register");
 
@@ -111,11 +115,6 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
             Log.d(TAG, e.getMessage());
         } finally {
             if (conn != null) {
-                try {
-                    conn.getInputStream().close();
-                } catch (IOException ioexception) {
-
-                }
                 conn.disconnect();
             }
         }

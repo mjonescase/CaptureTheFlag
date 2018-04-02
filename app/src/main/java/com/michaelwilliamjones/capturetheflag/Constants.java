@@ -9,6 +9,6 @@ public class Constants {
     public static final String SKELETOR_PORT = "5000";
     public static final String SKELETOR_PROTOCOL = "http";
     public static final String SKELETOR_URI = SKELETOR_PROTOCOL + "://" + SKELETOR_HOST + ":" + SKELETOR_PORT;
-    public static final String REGISTRATION_ENDPOINT = "register";
+    public static final String REGISTRATION_ENDPOINT = "register/";
     public static final String WEBSOCKET_ENDPOINT = "ws";
 }
