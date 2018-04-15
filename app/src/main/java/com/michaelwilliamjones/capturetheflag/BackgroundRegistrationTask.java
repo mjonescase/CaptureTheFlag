@@ -100,9 +100,11 @@ class BackgroundRegistrationTask extends AsyncTask<String, Integer, Integer> {
                 List<String> cookiesHeader = headerFields.get("Set-Cookie");
                 CookieManager cookieManager = CookieManager.getInstance();
 
-                for(String cookie : cookiesHeader) {
-                    Log.d(TAG, "cookies from header: " + cookie);
-                    cookieManager.setCookie(Constants.SKELETOR_HOST, cookie);
+                if (cookiesHeader != null) {
+                    for (String cookie : cookiesHeader) {
+                        Log.d(TAG, "cookies from header: " + cookie);
+                        cookieManager.setCookie(Constants.SKELETOR_HOST, cookie);
+                    }
                 }
 
             } else {

@@ -71,7 +71,7 @@ public class MapsActivity extends AppCompatActivity implements
 
     private static final String TAG = MapsActivity.class.getName();
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
-    private static final String WEB_SOCKET_URL = Constants.SKELETOR_URI + Constants.WEBSOCKET_ENDPOINT;
+    private static final String WEB_SOCKET_URL = Constants.SKELETOR_URI + "/" + Constants.WEBSOCKET_ENDPOINT;
     private OkHttpClient webSocketClient;
 
     /**
@@ -123,11 +123,15 @@ public class MapsActivity extends AppCompatActivity implements
         mapFragment.getMapAsync(this);
         //initialize web socket connection
         this.webSocketClient = new OkHttpClient();
-        Request request = new Request.Builder().url(this.WEB_SOCKET_URL).build();
-        EchoWebSocketListener listener = new EchoWebSocketListener();
-        listener.addLocationListener(this);
-        WebSocket ws = webSocketClient.newWebSocket(request, listener);
-        this.webSocketClient.dispatcher().executorService().shutdown();
+        try {
+            Request request = new Request.Builder().url(this.WEB_SOCKET_URL).build();
+            EchoWebSocketListener listener = new EchoWebSocketListener();
+            listener.addLocationListener(this);
+            WebSocket ws = webSocketClient.newWebSocket(request, listener);
+            this.webSocketClient.dispatcher().executorService().shutdown();
+        } catch (Exception exception) {
+            Log.i("Exception", exception.toString());
+        }
     }
 
     @Override
