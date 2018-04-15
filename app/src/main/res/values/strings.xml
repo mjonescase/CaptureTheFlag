@@ -123,4 +123,6 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_chat">ChatActivity</string>
+    <string name="title_activity_message_list">MessageListActivity</string>
 </resources>
