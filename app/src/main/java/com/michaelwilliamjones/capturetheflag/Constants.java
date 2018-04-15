@@ -5,6 +5,7 @@ package com.michaelwilliamjones.capturetheflag;
  */
 
 public class Constants {
+    public static final String LOGIN_ENDPOINT = "login/";
     public static final String SKELETOR_HOST = "192.168.1.73";
     public static final String SKELETOR_PORT = "5000";
     public static final String SKELETOR_PROTOCOL = "http";
