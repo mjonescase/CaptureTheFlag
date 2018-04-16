@@ -44,4 +44,8 @@ public class MessageListAdapter extends Adapter {
     public int getItemCount() {
         return this._messages.size();
     }
+
+    public void addMessage(String message) {
+        this._messages.add(message);
+    }
 }

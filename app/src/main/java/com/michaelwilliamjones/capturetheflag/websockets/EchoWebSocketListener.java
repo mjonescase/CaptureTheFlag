@@ -56,6 +56,10 @@ public class EchoWebSocketListener extends WebSocketListener {
                 for (LocationUpdateListener listener: this.locationUpdateListeners) {
                     listener.onLocationReceived(locationDetails);
                 }
+            } else {
+                for (MessageListener listener: this.messageListeners) {
+                    listener.onMessageReceived(messageString);
+                }
             }
         } catch (JSONException jsonException) {
             Log.e("WEBSOCKETS", "Malformed message data; expected JSON. Ignoring.");

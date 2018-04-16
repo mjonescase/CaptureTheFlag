@@ -52,7 +52,7 @@ public class BackgroundLoginTask extends AsyncTask<String, Integer, Integer> {
         if(success == 1) {
             // do whatever you're supposed to do on success.
             //Launch the MapsActivity.
-            Intent intent = new Intent(activity, MapsActivity.class);
+            Intent intent = new Intent(activity, MessageListActivity.class);
             activity.startActivity(intent);
             activity.finish();
         }
