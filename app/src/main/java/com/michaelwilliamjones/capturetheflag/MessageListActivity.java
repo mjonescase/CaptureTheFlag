@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.michaelwilliamjones.capturetheflag.adapters.MessageListAdapter;
@@ -51,7 +52,9 @@ public class MessageListActivity extends AppCompatActivity implements MessageLis
 
     public void onMessageReceived(String message) {
         this._messageAdapter.addMessage(message);
-        this._messageAdapter.bindViewHolder(new SentMessagesHolder(findViewById(R.id.item_message_sent)),
+        SentMessagesHolder holder = (SentMessagesHolder) _messageAdapter.createViewHolder((ViewGroup)
+                findViewById(R.id.message_list_view_group), 0);
+        this._messageAdapter.bindViewHolder(holder,
                 this._messageAdapter.getItemCount() - 1);
     }
 
@@ -62,9 +65,4 @@ public class MessageListActivity extends AppCompatActivity implements MessageLis
             _webSocket.send("{\"contents\": {\"message\": \"" + messageText + "\"}}");
         }
     }
-
-
-
-
-
 }

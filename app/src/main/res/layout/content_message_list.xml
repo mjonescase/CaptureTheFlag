@@ -5,6 +5,7 @@
     android:theme="@style/AppTheme"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/message_list_view_group"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.michaelwilliamjones.capturetheflag.MessageListActivity"
     tools:showIn="@layout/activity_message_list">
