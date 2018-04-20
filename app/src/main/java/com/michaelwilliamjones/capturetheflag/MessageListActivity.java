@@ -4,23 +4,26 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
 
-import com.michaelwilliamjones.capturetheflag.adapters.MessageListAdapter;
-import com.michaelwilliamjones.capturetheflag.adapters.holders.SentMessagesHolder;
+import com.michaelwilliamjones.capturetheflag.adapters.MyAdapter;
 import com.michaelwilliamjones.capturetheflag.websockets.EchoWebSocketListener;
 import com.michaelwilliamjones.capturetheflag.websockets.MessageListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
 
 public class MessageListActivity extends AppCompatActivity implements MessageListener{
-    private RecyclerView _messageRecycler;
-    private MessageListAdapter _messageAdapter;
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
+
+
+
     private OkHttpClient webSocketClient;
     private WebSocket _webSocket;
 
@@ -28,12 +31,19 @@ public class MessageListActivity extends AppCompatActivity implements MessageLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_list);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        _messageRecycler = (RecyclerView) findViewById(R.id.reyclerview_message_list);
-        _messageAdapter = new MessageListAdapter(this);
-        _messageRecycler.setLayoutManager(new LinearLayoutManager(this));
+        // set up the recycler view for incoming messages.
+        // use a linear layout manager
+        mRecyclerView = findViewById(R.id.my_recycler_view);
+        mRecyclerView.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(this);
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+
+        List<String> theData = new ArrayList<String>();
+        theData.add("this is a test message");
+        mAdapter = new MyAdapter(theData);
+        mRecyclerView.setAdapter(mAdapter);
 
         // set up a dingus websocket connection.
         this.webSocketClient = new OkHttpClient();
@@ -51,18 +61,17 @@ public class MessageListActivity extends AppCompatActivity implements MessageLis
     }
 
     public void onMessageReceived(String message) {
-        this._messageAdapter.addMessage(message);
-        SentMessagesHolder holder = (SentMessagesHolder) _messageAdapter.createViewHolder((ViewGroup)
-                findViewById(R.id.message_list_view_group), 0);
-        this._messageAdapter.bindViewHolder(holder,
-                this._messageAdapter.getItemCount() - 1);
+        // TextView sentMessage = findViewById(R.id.item_message_sent);
+        // sentMessage.setText(message);
+        // _messageRecycler.setHasFixedSize(true);
+        // _messageRecycler.setLayoutManager(new LinearLayoutManager(this));
     }
 
     public void onSendClick(View view) {
-        String messageText = ((EditText)findViewById(R.id.edittext_chatbox)).getText().toString();
+        /*String messageText = ((EditText)findViewById(R.id.edittext_chatbox)).getText().toString();
         if (messageText != null && !messageText.isEmpty()) {
             // send it over the websocket.
             _webSocket.send("{\"contents\": {\"message\": \"" + messageText + "\"}}");
-        }
+        }*/
     }
 }
