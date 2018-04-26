@@ -65,9 +65,19 @@ public class MessageListActivity extends AppCompatActivity implements MessageLis
         _webSocket.close(1000, "Normal Closure");
     }
 
-    public void onMessageReceived(String message) {
-        mAdapter.addItem(message);
-        mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
+    public void onMessageReceived(final String message) {
+        runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+                mAdapter.addItem(message);
+                mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException exception) {}
+                _webSocket.send("{\"contents\": {\"message\": \"" + "and again" + "\"}}");
+            }
+        });
+
     }
 
     public void onSendClick(View view) {
