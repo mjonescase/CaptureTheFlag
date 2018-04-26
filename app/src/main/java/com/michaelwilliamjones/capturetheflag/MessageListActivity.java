@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.michaelwilliamjones.capturetheflag.adapters.MyAdapter;
 import com.michaelwilliamjones.capturetheflag.websockets.EchoWebSocketListener;
@@ -19,7 +21,7 @@ import okhttp3.WebSocket;
 
 public class MessageListActivity extends AppCompatActivity implements MessageListener{
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private MyAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
 
 
@@ -35,7 +37,7 @@ public class MessageListActivity extends AppCompatActivity implements MessageLis
         // set up the recycler view for incoming messages.
         // use a linear layout manager
         mRecyclerView = findViewById(R.id.my_recycler_view);
-        mRecyclerView.setHasFixedSize(true);
+        // mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -52,6 +54,9 @@ public class MessageListActivity extends AppCompatActivity implements MessageLis
         listener.addMessageListener(this);
         _webSocket = webSocketClient.newWebSocket(request, listener);
         this.webSocketClient.dispatcher().executorService().shutdown();
+
+        // send a message.
+        _webSocket.send("{\"contents\": {\"message\": \"" + "over the wire" + "\"}}");
     }
 
     @Override
@@ -61,17 +66,15 @@ public class MessageListActivity extends AppCompatActivity implements MessageLis
     }
 
     public void onMessageReceived(String message) {
-        // TextView sentMessage = findViewById(R.id.item_message_sent);
-        // sentMessage.setText(message);
-        // _messageRecycler.setHasFixedSize(true);
-        // _messageRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter.addItem(message);
+        mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
     }
 
     public void onSendClick(View view) {
-        /*String messageText = ((EditText)findViewById(R.id.edittext_chatbox)).getText().toString();
-        if (messageText != null && !messageText.isEmpty()) {
+        // String messageText = ((EditText)findViewById(R.id.edittext_chatbox)).getText().toString();
+        // if (messageText != null && !messageText.isEmpty()) {
             // send it over the websocket.
-            _webSocket.send("{\"contents\": {\"message\": \"" + messageText + "\"}}");
-        }*/
+        //     _webSocket.send("{\"contents\": {\"message\": \"" + messageText + "\"}}");
+        // }
     }
 }
