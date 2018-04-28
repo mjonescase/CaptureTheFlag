@@ -30,9 +30,7 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -54,11 +52,16 @@
             android:name=".MessageListActivity"
             android:label="@string/title_activity_message_list"
             android:theme="@style/AppTheme.NoActionBar">
-                <intent-filter>
-                    <action android:name="android.intent.action.MAIN" />
+        </activity>
+        <activity
+            android:name=".TabsActivity"
+            android:label="@string/title_activity_tabs"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-                    <category android:name="android.intent.category.LAUNCHER" />
-                </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

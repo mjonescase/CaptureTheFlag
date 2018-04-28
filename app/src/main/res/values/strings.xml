@@ -125,4 +125,5 @@
     </string>
     <string name="title_activity_chat">ChatActivity</string>
     <string name="title_activity_message_list">MessageListActivity</string>
+    <string name="title_activity_tabs">TabsActivity</string>
 </resources>
