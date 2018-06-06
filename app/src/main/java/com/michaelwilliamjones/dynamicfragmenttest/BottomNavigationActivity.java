@@ -33,18 +33,25 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener;
     private LocationManager mLocationManager;
-    private final int MIN_TIME = 5;
+    private final int MIN_TIME = 500;
     private final int MIN_DISTANCE = 1;
+    private SupportMapFragment mMapFragment;
     private GoogleMap mGoogleMap;
 
+    private boolean isMapReady() {
+        return this.mGoogleMap != null;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final Context context = this;
-        final LocationListener locationListener = this;
         final BottomNavigationActivity that = this;
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+        }
 
          this.mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -63,23 +70,24 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                         ft.commit();
                         return true;
                     case R.id.navigation_notifications:
-                        final SupportMapFragment mapFragment = SupportMapFragment.newInstance();
-                        mapFragment.getMapAsync(new OnMapReadyCallback() {
-                            @Override
-                            public void onMapReady(GoogleMap googleMap) {
-                                mGoogleMap = googleMap;
-                                mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
-                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                                        == PackageManager.PERMISSION_GRANTED) {
-                                    mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, locationListener);
-                                    mGoogleMap.setMyLocationEnabled(true);
-                                } else {
-                                    Log.w("tag", "location access not enabled");
+                        if (!isMapReady()) {
+                            mMapFragment = SupportMapFragment.newInstance();
+                            mMapFragment.getMapAsync(new OnMapReadyCallback() {
+                                @Override
+                                public void onMapReady(GoogleMap googleMap) {
+                                    mGoogleMap = googleMap;
+                                    mGoogleMap.getUiSettings().setMyLocationButtonEnabled(true);
+                                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                                            == PackageManager.PERMISSION_GRANTED) {
+                                        mGoogleMap.setMyLocationEnabled(true);
+                                    } else {
+                                        Log.w("tag", "location access not enabled");
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
 
-                        ft.replace(R.id.fragment_container, mapFragment);
+                        ft.replace(R.id.fragment_container, mMapFragment);
                         ft.addToBackStack(null);
                         ft.commit();
 
@@ -117,11 +125,13 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
 
     @Override
     public void onLocationChanged(Location location) {
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
-        mGoogleMap.animateCamera(cameraUpdate);
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(10).bearing(90).tilt(40).build();
-        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        mLocationManager.removeUpdates(this);
+        if(this.mGoogleMap != null) {
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
+            mGoogleMap.animateCamera(cameraUpdate);
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(10).bearing(90).tilt(40).build();
+            mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            // mLocationManager.removeUpdates(this);
+        }
     }
 }
