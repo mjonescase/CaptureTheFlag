@@ -43,6 +43,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     private SupportMapFragment mMapFragment;
     private GoogleMap mGoogleMap;
     private Map<String, Marker> teammateLocationMarkers;
+    private boolean isFirstLocationUpdate = true;
 
     private boolean isMapReady() {
         return this.mGoogleMap != null;
@@ -136,7 +137,14 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
             mGoogleMap.animateCamera(cameraUpdate);
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(20).bearing(90).tilt(40).build();
+            CameraPosition cameraPosition;
+            if (isFirstLocationUpdate) {
+                cameraPosition = new CameraPosition.Builder().target(latLng).zoom(20).bearing(90).tilt(40).build();
+                isFirstLocationUpdate = false;
+            } else {
+                 cameraPosition = new CameraPosition.Builder().target(latLng).zoom(mGoogleMap.getCameraPosition().zoom).bearing(90).tilt(40).build();
+            }
+
             mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             if(this.teammateLocationMarkers.get("fakeTeammate") == null) {
                 this.teammateLocationMarkers.put("fakeTeammate",
