@@ -26,6 +26,11 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BottomNavigationActivity extends FragmentActivity implements LocationListener{
 
@@ -37,6 +42,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     private final int MIN_DISTANCE = 1;
     private SupportMapFragment mMapFragment;
     private GoogleMap mGoogleMap;
+    private Map<String, Marker> teammateLocationMarkers;
 
     private boolean isMapReady() {
         return this.mGoogleMap != null;
@@ -46,6 +52,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final Context context = this;
+        this.teammateLocationMarkers = new HashMap<String, Marker>();
         final BottomNavigationActivity that = this;
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -129,8 +136,17 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
             mGoogleMap.animateCamera(cameraUpdate);
-            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(10).bearing(90).tilt(40).build();
+            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(20).bearing(90).tilt(40).build();
             mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            if(this.teammateLocationMarkers.get("fakeTeammate") == null) {
+                this.teammateLocationMarkers.put("fakeTeammate",
+                        mGoogleMap.addMarker(new MarkerOptions().position(
+                                new LatLng(location.getLatitude()-.1,
+                                        location.getLongitude() - .1)).title("fake")));
+            } else {
+                this.teammateLocationMarkers.get("fakeTeammate").setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
+
             // mLocationManager.removeUpdates(this);
         }
     }
