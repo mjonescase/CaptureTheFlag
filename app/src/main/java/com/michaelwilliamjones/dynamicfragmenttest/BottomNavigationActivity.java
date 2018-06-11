@@ -113,6 +113,9 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+        // choose the settings screen at startup.
+        mOnNavigationItemSelectedListener.onNavigationItemSelected(navigation.getMenu().getItem(0));
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
