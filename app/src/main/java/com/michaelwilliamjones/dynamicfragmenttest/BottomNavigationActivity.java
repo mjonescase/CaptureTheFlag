@@ -31,6 +31,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.michaelwilliamjones.dynamicfragmenttest.websockets.EchoWebSocketListener;
+import com.michaelwilliamjones.dynamicfragmenttest.websockets.PubSubListener;
+
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +42,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
 
-public class BottomNavigationActivity extends FragmentActivity implements LocationListener{
+public class BottomNavigationActivity extends FragmentActivity implements LocationListener, PubSubListener {
 
     private ViewGroup fragmentContainer;
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
@@ -54,6 +57,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     private GoogleMap mGoogleMap;
     private Map<String, Marker> teammateLocationMarkers;
     private boolean isFirstLocationUpdate = true;
+    private WebSocket mWebSocket;
 
     private boolean isMapReady() {
         return this.mGoogleMap != null;
@@ -149,6 +153,9 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     public void onLocationChanged(Location location) {
         if(this.mGoogleMap != null) {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            if(mWebSocket != null && username != null){
+                mWebSocket.send("{\"username\": \"" + username + "\", \"latitude\": \"" + location.getLatitude() + "\", \"longitude\": \"" + location.getLongitude() + "\"}");
+            }
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
             mGoogleMap.animateCamera(cameraUpdate);
             CameraPosition cameraPosition;
@@ -180,10 +187,19 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         hostname = ((EditText) findViewById(R.id.hostname_input)).getText().toString();
 
         // do websocket stuff.
+        if(mWebSocket != null) {
+            mWebSocket.close(1000, "Normal Closure");
+        }
+
         OkHttpClient webSocketClient = new OkHttpClient();
         Request request = new Request.Builder().url("http://" + hostname + "/" + "ws?room=commBlue").build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
-        WebSocket webSocket = webSocketClient.newWebSocket(request, listener);
+        mWebSocket = webSocketClient.newWebSocket(request, listener);
         webSocketClient.dispatcher().executorService().shutdown();
+    }
+
+
+    public void onMessageReceived(JSONObject message) {
+        //
     }
 }

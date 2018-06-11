@@ -6,6 +6,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import okhttp3.Response;
@@ -18,6 +19,15 @@ import okio.ByteString;
  */
 
 public class EchoWebSocketListener extends WebSocketListener {
+    private ArrayList<PubSubListener> subscribers;
+
+    public void addSubscriber(PubSubListener subscriber) {
+        subscribers.add(subscriber);
+    }
+
+    public void removeSubscriber(PubSubListener subscriber) {
+        subscribers.remove(subscriber);
+    }
 
     private static final int NORMAL_CLOSURE_STATUS = 1000;
     @Override
@@ -27,6 +37,10 @@ public class EchoWebSocketListener extends WebSocketListener {
     @Override
     public void onMessage(WebSocket webSocket, String text) {
         Log.i("WEBSOCKETS","Receiving : " + text);
+        // turn the message into a json object.
+        for (PubSubListener listener : subscribers) {
+            listener.onMessageReceived();
+        }
     }
 
     @Override
