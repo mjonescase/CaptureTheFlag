@@ -16,7 +16,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -28,9 +30,14 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.michaelwilliamjones.dynamicfragmenttest.websockets.EchoWebSocketListener;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.WebSocket;
 
 public class BottomNavigationActivity extends FragmentActivity implements LocationListener{
 
@@ -41,6 +48,9 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     private final int MIN_TIME = 500;
     private final int MIN_DISTANCE = 1;
     private SupportMapFragment mMapFragment;
+    private HomeFragment mHomeFragment;
+    private String username = "";
+    private String hostname = "";
     private GoogleMap mGoogleMap;
     private Map<String, Marker> teammateLocationMarkers;
     private boolean isFirstLocationUpdate = true;
@@ -54,6 +64,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         super.onCreate(savedInstanceState);
         final Context context = this;
         this.teammateLocationMarkers = new HashMap<String, Marker>();
+        mHomeFragment = HomeFragment.newInstance();
         final BottomNavigationActivity that = this;
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -68,7 +79,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                 final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 switch (item.getItemId()) {
                     case R.id.navigation_home:
-                        ft.replace(R.id.fragment_container, HomeFragment.newInstance());
+                        ft.replace(R.id.fragment_container, mHomeFragment);
                         ft.addToBackStack(null);
                         ft.commit();
                         return true;
@@ -160,5 +171,19 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
 
             // mLocationManager.removeUpdates(this);
         }
+    }
+
+
+    public void onConnectClick(View view){
+        // get the username text
+        username = ((EditText) findViewById(R.id.username_input)).getText().toString();
+        hostname = ((EditText) findViewById(R.id.hostname_input)).getText().toString();
+
+        // do websocket stuff.
+        OkHttpClient webSocketClient = new OkHttpClient();
+        Request request = new Request.Builder().url("http://" + hostname + "/" + "ws?room=commBlue").build();
+        EchoWebSocketListener listener = new EchoWebSocketListener();
+        WebSocket webSocket = webSocketClient.newWebSocket(request, listener);
+        webSocketClient.dispatcher().executorService().shutdown();
     }
 }
