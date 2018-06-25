@@ -11,10 +11,21 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
+
+    signingConfigs {
+        release {
+            storeFile file("$System.env.RELEASE_STORE_FILE")
+            storePassword "$System.env.RELEASE_STORE_PASSWORD"
+            keyAlias "$System.env.RELEASE_KEY_ALIAS"
+            keyPassword "$System.env.RELEASE_KEY_PASSWORD"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }

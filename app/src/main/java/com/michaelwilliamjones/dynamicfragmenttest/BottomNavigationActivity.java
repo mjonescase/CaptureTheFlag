@@ -33,6 +33,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.michaelwilliamjones.dynamicfragmenttest.websockets.EchoWebSocketListener;
 import com.michaelwilliamjones.dynamicfragmenttest.websockets.PubSubListener;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -52,6 +53,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     private final int MIN_DISTANCE = 1;
     private SupportMapFragment mMapFragment;
     private HomeFragment mHomeFragment;
+    private DashboardFragment mDashboardFragment;
     private String username = "";
     private String hostname = "";
     private GoogleMap mGoogleMap;
@@ -69,6 +71,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         final Context context = this;
         this.teammateLocationMarkers = new HashMap<String, Marker>();
         mHomeFragment = HomeFragment.newInstance();
+        mDashboardFragment = DashboardFragment.newInstance();
         final BottomNavigationActivity that = this;
         mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -88,9 +91,16 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                         ft.commit();
                         return true;
                     case R.id.navigation_dashboard:
-                        ft.replace(R.id.fragment_container, DashboardFragment.newInstance());
+
+                        ft.replace(R.id.fragment_container, mDashboardFragment);
                         ft.addToBackStack(null);
                         ft.commit();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mDashboardFragment.addNewMessage("another test message");
+                            }
+                        });
                         return true;
                     case R.id.navigation_notifications:
                         if (!isMapReady()) {
@@ -154,7 +164,14 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         if(this.mGoogleMap != null) {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if(mWebSocket != null && username != null){
-                mWebSocket.send("{\"username\": \"" + username + "\", \"latitude\": \"" + location.getLatitude() + "\", \"longitude\": \"" + location.getLongitude() + "\"}");
+                JSONObject websocketMessage = new JSONObject();
+                try {
+                    websocketMessage.put("username", username);
+                    websocketMessage.put("latitude", location.getLatitude());
+                    websocketMessage.put("longitude", location.getLongitude());
+                    String toSend = websocketMessage.toString();
+                    mWebSocket.send(toSend);
+                } catch (JSONException jsonException) {}
             }
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
             mGoogleMap.animateCamera(cameraUpdate);
@@ -167,15 +184,6 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
             }
 
             mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-            if(this.teammateLocationMarkers.get("fakeTeammate") == null) {
-                this.teammateLocationMarkers.put("fakeTeammate",
-                        mGoogleMap.addMarker(new MarkerOptions().position(
-                                new LatLng(location.getLatitude()-.1,
-                                        location.getLongitude() - .1)).title("fake")));
-            } else {
-                this.teammateLocationMarkers.get("fakeTeammate").setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
-            }
-
             // mLocationManager.removeUpdates(this);
         }
     }
@@ -194,12 +202,38 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         OkHttpClient webSocketClient = new OkHttpClient();
         Request request = new Request.Builder().url("http://" + hostname + "/" + "ws?room=commBlue").build();
         EchoWebSocketListener listener = new EchoWebSocketListener();
+        listener.addSubscriber(this);
         mWebSocket = webSocketClient.newWebSocket(request, listener);
         webSocketClient.dispatcher().executorService().shutdown();
     }
 
 
     public void onMessageReceived(JSONObject message) {
-        //
+        try {
+            final String username = message.getString("username");
+            final double latitude = message.getDouble("latitude");
+            final double longitude = message.getDouble("longitude");
+
+
+            if (message.getString("username") != this.username && mGoogleMap != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // add a marker for this user if it's not there already.
+                        if(teammateLocationMarkers.get(username) == null) {
+                            teammateLocationMarkers.put(username,
+                                    mGoogleMap.addMarker(new MarkerOptions().position(
+                                            new LatLng(latitude,
+                                                    longitude)).title("fake")));
+                        } else {
+                            teammateLocationMarkers.get(username).setPosition(new LatLng(latitude, longitude));
+                        }
+                    }
+                });
+
+            }
+        } catch (JSONException jsonException) {
+
+        }
     }
 }

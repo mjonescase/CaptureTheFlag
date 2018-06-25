@@ -22,6 +22,9 @@ public class EchoWebSocketListener extends WebSocketListener {
     private ArrayList<PubSubListener> subscribers;
 
     public void addSubscriber(PubSubListener subscriber) {
+        if (this.subscribers == null){
+            this.subscribers = new ArrayList<PubSubListener>();
+        }
         subscribers.add(subscriber);
     }
 
@@ -38,8 +41,12 @@ public class EchoWebSocketListener extends WebSocketListener {
     public void onMessage(WebSocket webSocket, String text) {
         Log.i("WEBSOCKETS","Receiving : " + text);
         // turn the message into a json object.
+        JSONObject jsonObject;
+        try {
+            jsonObject = new JSONObject(text);
+        } catch (JSONException jsonException) { return; }
         for (PubSubListener listener : subscribers) {
-            listener.onMessageReceived();
+            listener.onMessageReceived(jsonObject);
         }
     }
 
