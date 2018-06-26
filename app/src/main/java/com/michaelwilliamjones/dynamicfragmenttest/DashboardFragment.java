@@ -3,6 +3,7 @@ package com.michaelwilliamjones.dynamicfragmenttest;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -24,6 +31,7 @@ public class DashboardFragment extends Fragment {
     private LinearLayoutManager mLayoutManager;
     private MyAdapter mAdapter;
     private boolean isViewCreated = false;
+    private Queue<String> messageBacklog;
 
     public DashboardFragment() {
         // Required empty public constructor
@@ -37,13 +45,24 @@ public class DashboardFragment extends Fragment {
     public static DashboardFragment newInstance() {
         DashboardFragment fragment = new DashboardFragment();
         fragment.setArguments(new Bundle());
+        MyAdapter adapter = new MyAdapter(new ArrayList<String>());
+        fragment.setAdapter(adapter);
+        fragment.setMessageBacklog(new LinkedList<>());
+        fragment.addNewMessage("this is a test message"); // TODO remove test code
         return fragment;
+    }
+
+    public void setAdapter(MyAdapter adapter) {
+        mAdapter = adapter;
+    }
+
+    public void setMessageBacklog(Queue queue) {
+        messageBacklog = queue;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_dashboard, container, false);
     }
 
@@ -53,16 +72,20 @@ public class DashboardFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getContext());
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-        List<String> theData = new ArrayList<String>();
-        theData.add("this is a test message");
-        mAdapter = new MyAdapter(theData);
         mRecyclerView.setAdapter(mAdapter);
         isViewCreated = true;
+        clearMessageBacklog();
     }
 
     public void addNewMessage(String message) {
-        if (isViewCreated) {
+        messageBacklog.add(message);
+        if(isViewCreated) {
+            clearMessageBacklog();
+        }
+    }
+
+    public void clearMessageBacklog() {
+        for(String message = messageBacklog.poll(); message != null; message = messageBacklog.poll()) {
             mAdapter.addItem(message);
             mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
         }
