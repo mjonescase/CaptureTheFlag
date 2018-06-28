@@ -1,6 +1,7 @@
 package com.michaelwilliamjones.dynamicfragmenttest;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -269,6 +271,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                 try {
                     final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                     new WebsocketConnectionAlertDialogFragment().show(ft, "TAG");
+                    hideSoftKeyboard();
                 } catch (Exception exc) {
                     Log.w("TAG", "Problem showing modal dialog: " + exc.getMessage());
                 }
@@ -278,5 +281,27 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
 
     public void onWebSocketConnectionFailure() {
         // show an error alert dialog
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    new WebsocketConnectionFailureDialogFragment().show(ft, "TAG");
+                } catch (Exception exc) {
+                    Log.w("TAG", "Problem showing modal dialog: " + exc.getMessage());
+                }
+            }
+        });
+    }
+
+    public void hideSoftKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(this);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
