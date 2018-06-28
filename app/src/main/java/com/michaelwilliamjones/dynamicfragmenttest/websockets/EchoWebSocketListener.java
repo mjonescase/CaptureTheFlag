@@ -46,7 +46,11 @@ public class EchoWebSocketListener extends WebSocketListener {
             jsonObject = new JSONObject(text);
         } catch (JSONException jsonException) { return; }
         for (PubSubListener listener : subscribers) {
-            listener.onMessageReceived(jsonObject);
+            try {
+                listener.onMessageReceived(jsonObject);
+            } catch (Exception exc) {
+                Log.w("TAG", "Problem handling ws message: " + exc.getMessage());
+            }
         }
     }
 

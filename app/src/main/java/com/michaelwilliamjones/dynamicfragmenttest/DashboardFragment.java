@@ -48,7 +48,6 @@ public class DashboardFragment extends Fragment {
         MyAdapter adapter = new MyAdapter(new ArrayList<String>());
         fragment.setAdapter(adapter);
         fragment.setMessageBacklog(new LinkedList<>());
-        fragment.addNewMessage("this is a test message"); // TODO remove test code
         return fragment;
     }
 

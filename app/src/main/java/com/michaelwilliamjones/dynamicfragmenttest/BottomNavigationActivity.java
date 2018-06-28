@@ -38,7 +38,9 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.RunnableFuture;
 
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
@@ -95,12 +97,6 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                         ft.replace(R.id.fragment_container, mDashboardFragment);
                         ft.addToBackStack(null);
                         ft.commit();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mDashboardFragment.addNewMessage("another test message");
-                            }
-                        });
                         return true;
                     case R.id.navigation_notifications:
                         if (!isMapReady()) {
@@ -169,11 +165,12 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                     websocketMessage.put("username", username);
                     websocketMessage.put("latitude", location.getLatitude());
                     websocketMessage.put("longitude", location.getLongitude());
+                    websocketMessage.put("message", "");
                     String toSend = websocketMessage.toString();
                     mWebSocket.send(toSend);
                 } catch (JSONException jsonException) {}
             }
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
+            /* CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
             mGoogleMap.animateCamera(cameraUpdate);
             CameraPosition cameraPosition;
             if (isFirstLocationUpdate) {
@@ -184,7 +181,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
             }
 
             mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-            // mLocationManager.removeUpdates(this);
+            // mLocationManager.removeUpdates(this); */
         }
     }
 
@@ -200,7 +197,8 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         }
 
         OkHttpClient webSocketClient = new OkHttpClient();
-        Request request = new Request.Builder().url("http://" + hostname + "/" + "ws?room=commBlue").build();
+        Request request = new Request.Builder().url("ws://" + hostname + "/" + "ws?room=commBlue").build();
+        HttpUrl url = request.url();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         listener.addSubscriber(this);
         mWebSocket = webSocketClient.newWebSocket(request, listener);
@@ -213,9 +211,10 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
             final String username = message.getString("username");
             final double latitude = message.getDouble("latitude");
             final double longitude = message.getDouble("longitude");
+            final String messageContent = message.getString("Message");
 
 
-            if (message.getString("username") != this.username && mGoogleMap != null) {
+            if (message.getString("username") != this.username && mGoogleMap != null && messageContent.isEmpty()) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -231,14 +230,33 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                     }
                 });
 
+            } else if (!messageContent.isEmpty()) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                    mDashboardFragment.addNewMessage(username + ": " + messageContent);
+                    }
+
+                });
             }
         } catch (JSONException jsonException) {
-
+            Log.w("messagereceived", "there was a problem decoding the json");
         }
     }
 
     public void onSendClick(View view) {
         // get the username text
         String messageText = ((EditText) findViewById(R.id.messageContent)).getText().toString();
+        if(mWebSocket != null && username != null){
+            JSONObject websocketMessage = new JSONObject();
+            try {
+                websocketMessage.put("username", username);
+                websocketMessage.put("latitude", 0.0);
+                websocketMessage.put("longitude", 0.0);
+                websocketMessage.put("message", messageText);
+                String toSend = websocketMessage.toString();
+                mWebSocket.send(toSend);
+            } catch (JSONException jsonException) {}
+        }
     }
 }
