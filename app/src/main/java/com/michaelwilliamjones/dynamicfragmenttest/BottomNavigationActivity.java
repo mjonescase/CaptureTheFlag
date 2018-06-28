@@ -32,6 +32,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.michaelwilliamjones.dynamicfragmenttest.websockets.EchoWebSocketListener;
 import com.michaelwilliamjones.dynamicfragmenttest.websockets.PubSubListener;
+import com.michaelwilliamjones.dynamicfragmenttest.websockets.WebSocketConnectionListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,7 +46,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
 
-public class BottomNavigationActivity extends FragmentActivity implements LocationListener, PubSubListener {
+public class BottomNavigationActivity extends FragmentActivity implements LocationListener, PubSubListener, WebSocketConnectionListener {
 
     private ViewGroup fragmentContainer;
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
@@ -201,6 +202,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         HttpUrl url = request.url();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         listener.addSubscriber(this);
+        listener.addConnectionListener(this);
         mWebSocket = webSocketClient.newWebSocket(request, listener);
         webSocketClient.dispatcher().executorService().shutdown();
     }
@@ -258,5 +260,23 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                 mWebSocket.send(toSend);
             } catch (JSONException jsonException) {}
         }
+    }
+
+    public void onWebSocketConnectionSuccess() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    new WebsocketConnectionAlertDialogFragment().show(ft, "TAG");
+                } catch (Exception exc) {
+                    Log.w("TAG", "Problem showing modal dialog: " + exc.getMessage());
+                }
+            }
+        });
+    }
+
+    public void onWebSocketConnectionFailure() {
+        // show an error alert dialog
     }
 }

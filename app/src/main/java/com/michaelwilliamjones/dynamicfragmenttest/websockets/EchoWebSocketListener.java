@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Response;
 import okhttp3.WebSocket;
@@ -19,13 +20,22 @@ import okio.ByteString;
  */
 
 public class EchoWebSocketListener extends WebSocketListener {
-    private ArrayList<PubSubListener> subscribers;
+    private List<PubSubListener> subscribers;
+    private List<WebSocketConnectionListener> connectionListeners;
 
     public void addSubscriber(PubSubListener subscriber) {
         if (this.subscribers == null){
             this.subscribers = new ArrayList<PubSubListener>();
         }
         subscribers.add(subscriber);
+    }
+
+    public void addConnectionListener(WebSocketConnectionListener connectionListener) {
+        if (this.connectionListeners == null) {
+            this.connectionListeners = new ArrayList<WebSocketConnectionListener>();
+        }
+
+        connectionListeners.add(connectionListener);
     }
 
     public void removeSubscriber(PubSubListener subscriber) {
@@ -36,6 +46,9 @@ public class EchoWebSocketListener extends WebSocketListener {
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
         Log.i("WEBSOCKETS", response.toString());
+        for (WebSocketConnectionListener connectionListener : this.connectionListeners) {
+            connectionListener.onWebSocketConnectionSuccess();
+        }
     }
     @Override
     public void onMessage(WebSocket webSocket, String text) {
@@ -67,5 +80,8 @@ public class EchoWebSocketListener extends WebSocketListener {
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         Log.e("WEBSOCKETS", "Error : " + t.getMessage());
+        for (WebSocketConnectionListener connectionListener : this.connectionListeners) {
+            connectionListener.onWebSocketConnectionFailure();
+        }
     }
 }
