@@ -236,4 +236,9 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
 
         }
     }
+
+    public void onSendClick(View view) {
+        // get the username text
+        String messageText = ((EditText) findViewById(R.id.messageContent)).getText().toString();
+    }
 }
