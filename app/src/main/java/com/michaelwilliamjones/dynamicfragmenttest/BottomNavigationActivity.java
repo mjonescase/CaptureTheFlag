@@ -65,6 +65,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     private Map<String, Marker> teammateLocationMarkers;
     private boolean isFirstLocationUpdate = true;
     private WebSocket mWebSocket;
+    private static final String HOSTNAME = "capturetheflag-env.bfkik8h6hw.us-east-1.elasticbeanstalk.com";
 
     private boolean isMapReady() {
         return this.mGoogleMap != null;
@@ -102,6 +103,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                         ft.commit();
                         return true;
                     case R.id.navigation_notifications:
+                        hideSoftKeyboard();
                         if (!isMapReady()) {
                             mMapFragment = SupportMapFragment.newInstance();
                             mMapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -192,7 +194,6 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     public void onConnectClick(View view){
         // get the username text
         username = ((EditText) findViewById(R.id.username_input)).getText().toString();
-        hostname = ((EditText) findViewById(R.id.hostname_input)).getText().toString();
 
         // do websocket stuff.
         if(mWebSocket != null) {
@@ -200,7 +201,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         }
 
         OkHttpClient webSocketClient = new OkHttpClient();
-        Request request = new Request.Builder().url("ws://" + hostname + "/" + "ws?room=commBlue").build();
+        Request request = new Request.Builder().url("ws://" + HOSTNAME + "/" + "ws?room=commBlue").build();
         HttpUrl url = request.url();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         listener.addSubscriber(this);
@@ -249,8 +250,10 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     }
 
     public void onSendClick(View view) {
-        // get the username text
-        String messageText = ((EditText) findViewById(R.id.messageContent)).getText().toString();
+        EditText chatTextField = findViewById(R.id.messageContent);
+        String messageText = chatTextField.getText().toString();
+        chatTextField.setText("");
+        hideSoftKeyboard();
         if(mWebSocket != null && username != null){
             JSONObject websocketMessage = new JSONObject();
             try {
@@ -260,7 +263,9 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                 websocketMessage.put("message", messageText);
                 String toSend = websocketMessage.toString();
                 mWebSocket.send(toSend);
-            } catch (JSONException jsonException) {}
+            } catch (JSONException jsonException) {
+
+            }
         }
     }
 
