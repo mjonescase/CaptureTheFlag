@@ -24,4 +24,13 @@
         android:onClick="onConnectClick"
         android:text="Connect" />
 
+    <TextView
+        android:id="@+id/versionInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/submit_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="113dp"
+        android:text="TextView" />
+
 </RelativeLayout>
