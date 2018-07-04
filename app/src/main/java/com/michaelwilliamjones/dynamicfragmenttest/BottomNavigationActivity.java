@@ -48,7 +48,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
 
-public class BottomNavigationActivity extends FragmentActivity implements LocationListener, PubSubListener, WebSocketConnectionListener {
+public class BottomNavigationActivity extends FragmentActivity implements LocationListener, PubSubListener, WebSocketConnectionListener, ActivityCompat.OnRequestPermissionsResultCallback {
 
     private ViewGroup fragmentContainer;
     private static final int MY_PERMISSIONS_REQUEST_VIEW_LOCATION = 1;
@@ -83,6 +83,10 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_VIEW_LOCATION);
         }
 
          this.mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -141,13 +145,23 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
 
         // choose the settings screen at startup.
         mOnNavigationItemSelectedListener.onNavigationItemSelected(navigation.getMenu().getItem(0));
+    }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_VIEW_LOCATION);
+    @Override
+    public void onRequestPermissionsResult(int code, String[] permissions, int[] grantResults) {
+        switch( code ){
+            case MY_PERMISSIONS_REQUEST_VIEW_LOCATION:
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME, MIN_DISTANCE, this);
+                }
+                break;
+            default:
+                break;
         }
+    }
+
+    public void handleAccessFineLocationAllowed() {
     }
 
     // LocationListener interface implementations
