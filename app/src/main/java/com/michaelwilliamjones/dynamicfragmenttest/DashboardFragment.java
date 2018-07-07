@@ -84,9 +84,15 @@ public class DashboardFragment extends Fragment {
     }
 
     public void clearMessageBacklog() {
-        for(String message = messageBacklog.poll(); message != null; message = messageBacklog.poll()) {
+        if(messageBacklog == null ) {
+            return;
+        }
+        
+        String message = messageBacklog.poll();
+        while(message != null) {
             mAdapter.addItem(message);
             mAdapter.notifyItemInserted(mAdapter.getItemCount() - 1);
+            message = messageBacklog.poll();
         }
     }
 }
