@@ -24,7 +24,8 @@
 -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCFiNzFEzGOCS_PpUJsiDHOGnOKVZN-9n4" />
+            android:value="AIzaSyAAg3fJykNz38GsAdNZZeuZyh4v3QZaeQI" />
+        <!-- debug value: AIzaSyCFiNzFEzGOCS_PpUJsiDHOGnOKVZN-9n4 -->
 
         <activity
             android:name=".BottomNavigationActivity"
