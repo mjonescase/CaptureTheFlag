@@ -208,6 +208,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
     public void onConnectClick(View view){
         // get the username text
         username = ((EditText) findViewById(R.id.username_input)).getText().toString();
+        String passcode = ((EditText) findViewById(R.id.passcode)).getText().toString(); //"red8648172";
 
         // do websocket stuff.
         if(mWebSocket != null) {
@@ -215,7 +216,7 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
         }
 
         OkHttpClient webSocketClient = new OkHttpClient();
-        Request request = new Request.Builder().url("ws://" + HOSTNAME + "/" + "ws?room=commBlue").build();
+        Request request = new Request.Builder().url("ws://" + HOSTNAME + "/" + "ws?room=" + passcode).build();
         HttpUrl url = request.url();
         EchoWebSocketListener listener = new EchoWebSocketListener();
         listener.addSubscriber(this);
