@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DynamicFragmentTest</string>
+    <string name="app_name">Capture the Flag</string>
     <string name="title_home">Connect</string>
     <string name="title_dashboard">Chat</string>
     <string name="title_notifications">Map</string>
