@@ -22,10 +22,11 @@
  sign the APK for publishing.
  You can define the keys for the debug and release targets in src/debug/ and src/release/.
 -->
+        <!--DEBUG android:value="AIzaSyCFiNzFEzGOCS_PpUJsiDHOGnOKVZN-9n4"/>-->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBhdezH5A-lqFr_ZEX-pidyALhOIyyUZgI" />
-        <!-- debug value: AIzaSyCFiNzFEzGOCS_PpUJsiDHOGnOKVZN-9n4 -->
+            android:value="AIzaSyBhdezH5A-lqFr_ZEX-pidyALhOIyyUZgI"
+             />
 
         <activity
             android:name=".BottomNavigationActivity"

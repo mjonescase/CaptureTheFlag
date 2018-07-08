@@ -243,10 +243,13 @@ public class BottomNavigationActivity extends FragmentActivity implements Locati
                             teammateLocationMarkers.put(username,
                                     mGoogleMap.addMarker(new MarkerOptions().position(
                                             new LatLng(latitude,
-                                                    longitude)).title("fake")));
-                        } else {
-                            teammateLocationMarkers.get(username).setPosition(new LatLng(latitude, longitude));
+                                                    longitude)).title(username)));
                         }
+
+                        Marker marker = teammateLocationMarkers.get(username);
+                        marker.setPosition(new LatLng(latitude, longitude));
+                        marker.showInfoWindow();
+
                     }
                 });
 
