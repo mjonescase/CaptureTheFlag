@@ -43,7 +43,7 @@ public class HomeFragmentTest {
                                 childAtPosition(
                                            withId(R.id.fragment_container),
                                                 0),
-                            1),
+                            2),
                         isDisplayed()));
         button.check(matches(isDisplayed()));
 
@@ -63,7 +63,7 @@ public class HomeFragmentTest {
                                 childAtPosition(
                                         withId(R.id.fragment_container),
                                         0),
-                                3),
+                                1),
                         isDisplayed()));
         editText2.check(matches(isDisplayed()));
 
@@ -73,7 +73,7 @@ public class HomeFragmentTest {
                                 childAtPosition(
                                         withId(R.id.fragment_container),
                                         0),
-                                2),
+                                3),
                         isDisplayed()));
         textView.check(matches(isDisplayed()));
 
